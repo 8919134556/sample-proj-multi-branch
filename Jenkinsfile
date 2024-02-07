@@ -18,11 +18,11 @@ pipeline {
                         DOCKER_PASSWORD = credentials('DOCKER_HUB_PASSWORD')
                     }
                     // Build Docker image for production
-                    sh 'docker build -t 9989228601/sample-project:prod .'
+                    sh 'docker build -t 9989228601/sample-project:staging .'
                     
                     // Push Docker image to Docker Hub registry
                     sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
-                    sh 'docker push 9989228601/sample-project:prod'
+                    sh 'docker push 9989228601/sample-project:staging'
                 }
             }
         }
