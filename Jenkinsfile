@@ -30,7 +30,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 // Apply Kubernetes manifests to production environment
-                sh 'kubectl apply -f prod-deployment.yaml'
+                sh 'kubectl apply -f staging-deployment.yaml'
             }
         }
     }
