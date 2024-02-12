@@ -55,7 +55,6 @@ def emailBodyDeploy = """
 </html>
 """
 
-
 pipeline {
     agent any
 
@@ -68,7 +67,7 @@ pipeline {
                 git branch: 'prod', url: 'https://github.com/8919134556/sample-proj-multi-branch.git'
             }
         }
-        
+
         stage('Build Approval') {
             steps {
                 script {
@@ -93,7 +92,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Build and Push Docker Image') {
             agent {
                 label 'mdvr' // Specify the label of the Linux node here
@@ -101,7 +100,7 @@ pipeline {
             steps {
                 // Build Docker image
                 sh 'docker build -t 9989228601/sample-project-prod:1 .'
-                
+
                 // Push Docker image to Docker Hub registry
                 withCredentials([usernamePassword(credentialsId: '377e98fd-7ba5-4b8f-a3a2-405f82ade900', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                     sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
@@ -109,7 +108,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Deployment Approval') {
             steps {
                 script {
@@ -134,13 +133,13 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Deploy to Kubernetes Production') {
             agent {
                 label 'mdvr' // Specify the label of the Linux node here
             }
             steps {
-                // Apply Kubernetes manifests to prodction environment
+                // Apply Kubernetes manifests to production environment
                 sh 'kubectl apply -f deployment.yaml'
             }
         }
