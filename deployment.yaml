@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: sample-pro-prod-container
-        image: 9989228601/sample-project-prod:latest
+        image: 9989228601/sample-project-prod:3
         ports:
         - containerPort: 3001
   strategy:
