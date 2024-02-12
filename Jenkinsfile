@@ -67,73 +67,71 @@ pipeline {
                 git branch: 'prod', url: 'https://github.com/8919134556/sample-proj-multi-branch.git'
             }
         }
-        
+
         stage('Build Approval Stage') {
             steps {
                 script {
                     // Approval for Build stage
-                    emailext body: emailBodyBuild,
-                             subject: 'Build Approval Required',
-                             to: recipientEmailBuild,
-                             mimeType: 'text/html'
-                    def approval = input message: 'Waiting for build approval',
-                                           ok: 'Proceed',
-                                           submitter: 'build-approver',
-                                           parameters: [
-                                               string(defaultValue: '', description: 'Enter your feedback', name: 'feedback'),
-                                               booleanParam(defaultValue: false, description: 'Approve', name: 'approve')
-                                           ]
-                    if (!approval['approve']) {
-                        error "Build stage approval denied."
+                    timeout(time: 5, unit: 'MINUTES') {
+                        emailext body: emailBodyBuild,
+                                 subject: 'Build Approval Required',
+                                 to: recipientEmailBuild,
+                                 mimeType: 'text/html'
+                        def approval = input message: 'Waiting for build approval',
+                                               ok: 'Proceed',
+                                               submitter: 'build-approver',
+                                               parameters: [
+                                                   string(defaultValue: '', description: 'Enter your feedback', name: 'feedback'),
+                                                   booleanParam(defaultValue: false, description: 'Approve', name: 'approve')
+                                               ]
+                        if (!approval['approve']) {
+                            error "Build stage approval denied."
+                        }
                     }
-                }
-                timeout(time: 5, unit: 'MINUTES') {
-                    input message: 'Do you want to proceed with the build?', ok: 'Proceed'
                 }
             }
         }
-        
+
         stage('Build and Push Docker Image') {
             agent {
                 label 'mdvr'
             }
             steps {
                 // Build Docker image
-                sh 'docker build -t 9989228601/sample-project-staging:3 .'
-                
+                sh 'docker build -t 9989228601/sample-project-staging:4 .'
+
                 // Push Docker image to Docker Hub registry
                 withCredentials([usernamePassword(credentialsId: '377e98fd-7ba5-4b8f-a3a2-405f82ade900', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                     sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
-                    sh 'docker push 9989228601/sample-project-staging:3'
+                    sh 'docker push 9989228601/sample-project-staging:4'
                 }
             }
         }
-        
+
         stage('Deployment Approval Stage') {
             steps {
                 script {
                     // Approval for Deploy stage
-                    emailext body: emailBodyDeploy,
-                             subject: 'Deployment Approval Required',
-                             to: recipientEmailDeploy,
-                             mimeType: 'text/html'
-                    def approval = input message: 'Waiting for deployment approval',
-                                           ok: 'Proceed',
-                                           submitter: 'deploy-approver',
-                                           parameters: [
-                                               string(defaultValue: '', description: 'Enter your feedback', name: 'feedback'),
-                                               booleanParam(defaultValue: false, description: 'Approve', name: 'approve')
-                                           ]
-                    if (!approval['approve']) {
-                        error "Deployment stage approval denied."
+                    timeout(time: 5, unit: 'MINUTES') {
+                        emailext body: emailBodyDeploy,
+                                 subject: 'Deployment Approval Required',
+                                 to: recipientEmailDeploy,
+                                 mimeType: 'text/html'
+                        def approval = input message: 'Waiting for deployment approval',
+                                               ok: 'Proceed',
+                                               submitter: 'deploy-approver',
+                                               parameters: [
+                                                   string(defaultValue: '', description: 'Enter your feedback', name: 'feedback'),
+                                                   booleanParam(defaultValue: false, description: 'Approve', name: 'approve')
+                                               ]
+                        if (!approval['approve']) {
+                            error "Deployment stage approval denied."
+                        }
                     }
-                }
-                timeout(time: 5, unit: 'MINUTES') {
-                    input message: 'Do you want to proceed with the deployment?', ok: 'Proceed'
                 }
             }
         }
-        
+
         stage('Deploy to Kubernetes Staging') {
             agent {
                 label 'mdvr'
