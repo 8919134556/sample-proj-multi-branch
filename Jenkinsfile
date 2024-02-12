@@ -72,23 +72,18 @@ pipeline {
             steps {
                 script {
                     // Approval for Build stage
-                    emailext body: emailBodyBuild,
-                             subject: 'Build Approval Required',
-                             to: recipientEmailBuild,
-                             mimeType: 'text/html'
-                    def approval = input message: 'Waiting for build approval',
-                                           ok: 'Proceed',
-                                           submitter: 'build-approver',
-                                           parameters: [
-                                               string(defaultValue: '', description: 'Enter your feedback', name: 'feedback'),
-                                               booleanParam(defaultValue: false, description: 'Approve', name: 'approve')
-                                           ]
-                    if (!approval['approve']) {
-                        error "Build stage approval denied."
+                    timeout(time: 5, unit: 'MINUTES') {
+                        def approval = input message: 'Waiting for build approval',
+                                               ok: 'Proceed',
+                                               submitter: 'build-approver',
+                                               parameters: [
+                                                   string(defaultValue: '', description: 'Enter your feedback', name: 'feedback'),
+                                                   booleanParam(defaultValue: false, description: 'Approve', name: 'approve')
+                                               ]
+                        if (!approval['approve']) {
+                            error "Build stage approval denied."
+                        }
                     }
-                }
-                timeout(time: 5, unit: 'MINUTES') {
-                    input message: 'Do you want to proceed with the build?', ok: 'Proceed'
                 }
             }
         }
@@ -99,12 +94,12 @@ pipeline {
             }
             steps {
                 // Build Docker image
-                sh 'docker build -t 9989228601/sample-project-prod:3 .'
+                sh 'docker build -t 9989228601/sample-project-prod:4 .'
 
                 // Push Docker image to Docker Hub registry
                 withCredentials([usernamePassword(credentialsId: '377e98fd-7ba5-4b8f-a3a2-405f82ade900', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                     sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
-                    sh 'docker push 9989228601/sample-project-prod:3'
+                    sh 'docker push 9989228601/sample-project-prod:4'
                 }
             }
         }
@@ -112,24 +107,23 @@ pipeline {
         stage('Deployment Approval') {
             steps {
                 script {
-                    // Approval for Deploy prod
-                    emailext body: emailBodyDeploy,
-                             subject: 'Deployment Approval Required',
-                             to: recipientEmailDeploy,
-                             mimeType: 'text/html'
-                    def approval = input message: 'Waiting for deployment approval',
-                                           ok: 'Proceed',
-                                           submitter: 'deploy-approver',
-                                           parameters: [
-                                               string(defaultValue: '', description: 'Enter your feedback', name: 'feedback'),
-                                               booleanParam(defaultValue: false, description: 'Approve', name: 'approve')
-                                           ]
-                    if (!approval['approve']) {
-                        error "Deployment Prod approval denied."
+                    // Approval for Deployment prod
+                    timeout(time: 5, unit: 'MINUTES') {
+                        emailext body: emailBodyDeploy,
+                                 subject: 'Deployment Approval Required',
+                                 to: recipientEmailDeploy,
+                                 mimeType: 'text/html'
+                        def approval = input message: 'Waiting for deployment approval',
+                                               ok: 'Proceed',
+                                               submitter: 'deploy-approver',
+                                               parameters: [
+                                                   string(defaultValue: '', description: 'Enter your feedback', name: 'feedback'),
+                                                   booleanParam(defaultValue: false, description: 'Approve', name: 'approve')
+                                               ]
+                        if (!approval['approve']) {
+                            error "Deployment Prod approval denied."
+                        }
                     }
-                }
-                timeout(time: 5, unit: 'MINUTES') {
-                    input message: 'Do you want to proceed with the deployment?', ok: 'Proceed'
                 }
             }
         }

@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: sample-pro-prod-container
-        image: 9989228601/sample-project-prod:3
+        image: 9989228601/sample-project-prod:4
         ports:
         - containerPort: 3001
   strategy:
@@ -34,7 +34,7 @@ metadata:
 spec:
   type: NodePort
   selector:
-    app: sample-project-pr
+    app: sample-project-prod
   ports:
     - protocol: TCP
       port: 3001
