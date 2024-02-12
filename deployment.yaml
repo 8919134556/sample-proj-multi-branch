@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: sample-project-deployment
+  name: sample-pro-staging-deployment
   namespace: mdvr-stag
 spec:
   replicas: 1  # Change the number of replicas to 1
   selector:
     matchLabels:
-      app: sample-project
+      app: sample-pro-staging
   template:
     metadata:
       labels:
-        app: sample-project
+        app: sample-pro-staging
     spec:
       containers:
-      - name: sample-project-container
-        image: 9989228601/sample-project:staging
+      - name: sample-pro-staging-container
+        image: 9989228601/sample-project-staging:1
         ports:
         - containerPort: 3001
   strategy:
@@ -29,12 +29,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: sample-project-service
+  name: sample-pro-staging-service
   namespace: mdvr-stag
 spec:
   type: NodePort
   selector:
-    app: sample-project
+    app: sample-pro-staging
   ports:
     - protocol: TCP
       port: 3000
