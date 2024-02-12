@@ -55,21 +55,20 @@ def emailBodyDeploy = """
 </html>
 """
 
-
 pipeline {
     agent any
 
     stages {
         stage('Checkout') {
             agent {
-                label 'mdvr' // Specify the label of the Linux node here
+                label 'mdvr'
             }
             steps {
                 git branch: 'prod', url: 'https://github.com/8919134556/sample-proj-multi-branch.git'
             }
         }
         
-        stage('Build Approval') {
+        stage('Build Approval Stage') {
             steps {
                 script {
                     // Approval for Build stage
@@ -96,7 +95,7 @@ pipeline {
         
         stage('Build and Push Docker Image') {
             agent {
-                label 'mdvr' // Specify the label of the Linux node here
+                label 'mdvr'
             }
             steps {
                 // Build Docker image
@@ -110,7 +109,7 @@ pipeline {
             }
         }
         
-        stage('Deployment Approval') {
+        stage('Deployment Approval Stage') {
             steps {
                 script {
                     // Approval for Deploy stage
@@ -137,7 +136,7 @@ pipeline {
         
         stage('Deploy to Kubernetes Staging') {
             agent {
-                label 'mdvr' // Specify the label of the Linux node here
+                label 'mdvr'
             }
             steps {
                 // Apply Kubernetes manifests to staging environment
