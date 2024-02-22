@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: sample-pro-staging-container
-        image: 9989228601/sample-project-staging:8
+        image: 9989228601/sample-project-staging:9
         ports:
         - containerPort: 3001
   strategy:
